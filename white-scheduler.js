@@ -18,14 +18,20 @@
         newTd.align = 'left';
         var div = document.createElement('div');
         div.style = `
-            border: 1px solid #d8a676;
-            border-radius: 2px;
-            background: -webkit-gradient(linear, left top, left bottom, from(#FCF0DA), to(#FAE6BF));
-            background: -moz-linear-gradient(top, #FCF0DA, #FAE6BF);
-            background: -ms-linear-gradient(top, #FCF0DA, #FAE6BF);
+            margin: 0;
             font-size: 9pt;
             cursor: default;
         `;
+        div.classList.add('PSPUSHBUTTON', 'Left');
+        div.onmouseover = function(e) {
+            var div = e.currentTarget;
+            div.style.background = '#fad9a5';
+        };
+        div.onmouseout = function(e) {
+            var div = e.currentTarget;
+            div.style.background = null;
+        };
+        div.onclick = main;
         var img = document.createElement('img');
         img.src = 'https://image.flaticon.com/icons/svg/185/185675.svg';
         img.height = 20;
@@ -33,11 +39,13 @@
         div.appendChild(img);
         var span = document.createElement('span');
         span.innerHTML = '点我';
+        span.style.backgroundColor = 'Transparent';
         div.appendChild(span);
         newTd.appendChild(div);
         table.children[0].children[1].appendChild(newTd);
-
-        var refresh = document.getElementById('DERIVED_CLASS_S_SSR_REFRESH_CAL$8$');
-        refresh.value = 'Hacked!';
     }
 })();
+
+function main(e) {
+    alert(e.currentTarget);
+}
