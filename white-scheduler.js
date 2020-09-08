@@ -19,19 +19,14 @@
         newTd.align = 'left';
         let div = document.createElement('div');
         div.style = `
-            margin: 0;
+            width: 50px;
+            margin: 0 2px;
             font-size: 9pt;
             cursor: default;
         `;
         div.classList.add('PSPUSHBUTTON', 'Left');
-        div.onmouseover = function(e) {
-            let div = e.currentTarget;
-            div.style.background = '#fad9a5';
-        };
-        div.onmouseout = function(e) {
-            let div = e.currentTarget;
-            div.style.background = null;
-        };
+        div.setAttribute('mouseover', hover);
+        div.setAttribute('mouseout', out);
         div.onclick = help;
         let img = document.createElement('img');
         img.src = 'https://image.flaticon.com/icons/svg/185/185675.svg';
@@ -44,8 +39,23 @@
         div.appendChild(span);
         newTd.appendChild(div);
         table.children[0].children[1].appendChild(newTd);
+
+        let newTd2 = newTd.cloneNode(true);
+        newTd2.firstChild.children[1].innerHTML = '生成';
+        newTd2.firstChild.onclick = build;
+        table.children[0].children[1].appendChild(newTd2);
     }
 })();
+
+function hover(e) {
+    let div = e.currentTarget;
+    div.style.background = '#fad9a5';
+}
+
+function out(e) {
+    let div = e.currentTarget;
+    div.style.background = null;
+}
 
 function help(e) {
     let helpText = `Help:
@@ -61,37 +71,22 @@ let links = {};
 
 // Add event listeners to blocks
 (function () {
+    if (!table) return;
     let tbody = table.children[2];
     let row = 0;
     for (let tr of tbody.children) {
-        if (row % 2 == 0) {
-            // odd row (head not count)
-            // skip first row (table head)
-            if (row != 0) {
-                for (let td of tr.children) {
-                    // skip the first column (time)
-                    if (td.children.length > 0) {
-                        courses.push(td);
-                        td.style.cursor = 'pointer';
-                        td.addEventListener('click', addLink);
-                    }
-                }
-            }
-        }
-        else {
-            // even row
-            let column = 0;
-            for (let td of tr.children) {
-                // skip the first column (time)
-                if (column != 0 && td.children.length > 0) {
-                    courses.push(td);
-                    td.style.cursor = 'pointer';
-                    td.addEventListener('click', addLink);
-                }
-                column++;
-            }
-        }
         row++;
+        // skip first row
+        if (row == 1) continue;
+        let column = 0;
+        for (let td of tr.children) {
+            column++;
+            if (row % 2 == 0 && column == 1) continue;
+            if (td.childElementCount <= 0) continue;
+            courses.push(td);
+            td.style.cursor = 'pointer';
+            td.addEventListener('click', addLink);
+        }
     }
 })();
 
@@ -133,43 +128,24 @@ function setHttp(link) {
 }
 
 function processHTML() {
+    if (!table) return;
     let tbody = table.children[2];
     let row = 0;
     for (let tr of tbody.children) {
-        if (row % 2 == 0) {
-            // odd row (head not count)
-            // skip first row (table head)
-            if (row != 0) {
-                for (let td of tr.children) {
-                    // skip the first column (time)
-                    if (td.children.length > 0) {
-                        td.removeEventListener('click', addLink);
-                        let index = courses.indexOf(td);
-                        let link = links['no' + index];
-                        if (link != undefined)
-                            td.setAttribute('onclick',
-                                    'javascript: window.open("' + link + '"');
-                    }
-                }
-            }
-        }
-        else {
-            // even row
-            let column = 0;
-            for (let td of tr.children) {
-                // skip the first column (time)
-                if (column != 0 && td.children.length > 0) {
-                    td.removeEventListener('click', addLink);
-                        let index = courses.indexOf(td);
-                        let link = links['no' + index];
-                        if (link != undefined)
-                            td.setAttribute('onclick',
-                                        'javascript: window.open("' + link + '"');
-                }
-                column++;
-            }
-        }
         row++;
+        // skip first row
+        if (row == 1) continue;
+        let column = 0;
+        for (let td of tr.children) {
+            column++;
+            if (row % 2 == 0 && column == 1) continue;
+            if (td.childElementCount <= 0) continue;
+            td.removeEventListener('click', addLink);
+            let index = courses.indexOf(td);
+            let link = links['no' + index];
+            if (link == undefined) continue;
+            td.setAttribute('onclick', 'javascript: window.open(\'' + link + '\')');
+        }
     }
 }
 
@@ -183,4 +159,9 @@ function saveHTML() {
     document.body.appendChild(a);
     a.innerHTML = "White Scheduler download";
     a.click();
+}
+
+function build() {
+    processHTML();
+    saveHTML();
 }
