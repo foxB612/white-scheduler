@@ -8,14 +8,15 @@
 // @grant        none
 // ==/UserScript==
 
-// Insert button
-(function() {
+// Insert buttons
+function insertButton() {
     'use strict';
     let table = document.getElementById('ACE_DERIVED_CLASS_S_GROUPBOX1');
     if (table) {
         let newTd = document.createElement('td');
         newTd.setAttribute('rowspan', '3');
         newTd.setAttribute('valign', 'top');
+        newTd.id = 'FOXBUTTON1';
         newTd.align = 'left';
         let div = document.createElement('div');
         div.style = `
@@ -34,18 +35,19 @@
         img.style = 'vertical-align: middle';
         div.appendChild(img);
         let span = document.createElement('span');
-        span.innerHTML = '点我';
+        span.innerHTML = 'Help';
         span.style.backgroundColor = 'Transparent';
         div.appendChild(span);
         newTd.appendChild(div);
         table.children[0].children[1].appendChild(newTd);
 
         let newTd2 = newTd.cloneNode(true);
-        newTd2.firstChild.children[1].innerHTML = '生成';
+        newTd.id = 'FOXBUTTON2';
+        newTd2.firstChild.children[1].innerHTML = 'Build';
         newTd2.firstChild.onclick = build;
         table.children[0].children[1].appendChild(newTd2);
     }
-})();
+}
 
 function hover(e) {
     let div = e.currentTarget;
@@ -70,7 +72,7 @@ let courses = [];
 let links = {};
 
 // Add event listeners to blocks
-(function () {
+function blockClick() {
     if (!table) return;
     let tbody = table.children[2];
     let row = 0;
@@ -88,7 +90,7 @@ let links = {};
             td.addEventListener('click', addLink);
         }
     }
-})();
+}
 
 function addLink(e) {
     e.preventDefault();
@@ -140,6 +142,9 @@ function processHTML() {
             column++;
             if (row % 2 == 0 && column == 1) continue;
             if (td.childElementCount <= 0) continue;
+            let t = td.firstChild.innerHTML;
+            t = t.replace(/((<br>No Room Required )|(<br>Link Added))/g, '');
+            td.firstChild.innerHTML = t;
             td.removeEventListener('click', addLink);
             let index = courses.indexOf(td);
             let link = links['no' + index];
@@ -165,3 +170,39 @@ function build() {
     processHTML();
     saveHTML();
 }
+
+(function () {
+    insertButton();
+    blockClick();
+
+    // Observe DOM tree change to hook Refresh event
+    const targetNode = document.getElementById('win0divPSPAGECONTAINER');
+    if (!targetNode) return;
+    const config = { attributes: false, childList: true, subtree: false };
+
+    let flag = true;
+    const callback = function (mutationsList, observer) {
+        for(let mutation of mutationsList) {
+            if (mutation.type === 'childList') {
+                flag = !flag;
+                if (flag) {
+                    // page is reloaded.
+                    // but whether finished or just start reloading?
+                    table = undefined;
+                    courses = [];
+                    links = {};
+                    insertButton();
+                    table = document.getElementById('WEEKLY_SCHED_HTMLAREA');
+                    blockClick();
+                }
+            }
+            else console.log(mutation.type);
+        }
+    };
+
+    // Create an observer instance linked to the callback function
+    const observer = new MutationObserver(callback);
+
+    // Start observing the target node for configured mutations
+    observer.observe(targetNode, config);
+})();
