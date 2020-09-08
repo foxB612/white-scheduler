@@ -8,6 +8,7 @@
 // @grant        none
 // ==/UserScript==
 
+// Insert button
 (function() {
     'use strict';
     let table = document.getElementById('ACE_DERIVED_CLASS_S_GROUPBOX1');
@@ -31,7 +32,7 @@
             let div = e.currentTarget;
             div.style.background = null;
         };
-        div.onclick = main;
+        div.onclick = help;
         let img = document.createElement('img');
         img.src = 'https://image.flaticon.com/icons/svg/185/185675.svg';
         img.height = 20;
@@ -46,11 +47,23 @@
     }
 })();
 
-function main(e) {
-    let table = document.getElementById('WEEKLY_SCHED_HTMLAREA');
-    table = table.children[2];
+function help(e) {
+    let helpText = `Help:
+    1. Click blocks to add links;
+    2. Hover over the block to see the added link.
+    `;
+    alert(helpText);
+}
+
+let table = document.getElementById('WEEKLY_SCHED_HTMLAREA');
+let courses = [];
+let links = {};
+
+// Add event listeners to blocks
+(function () {
+    let tbody = table.children[2];
     let row = 0;
-    for (let tr of table.children) {
+    for (let tr of tbody.children) {
         if (row % 2 == 0) {
             // odd row (head not count)
             // skip first row (table head)
@@ -58,8 +71,9 @@ function main(e) {
                 for (let td of tr.children) {
                     // skip the first column (time)
                     if (td.children.length > 0) {
+                        courses.push(td);
                         td.style.cursor = 'pointer';
-                        td.onclick = addLink;
+                        td.addEventListener('click', addLink);
                     }
                 }
             }
@@ -70,18 +84,103 @@ function main(e) {
             for (let td of tr.children) {
                 // skip the first column (time)
                 if (column != 0 && td.children.length > 0) {
+                    courses.push(td);
                     td.style.cursor = 'pointer';
-                    td.onclick = addLink;
+                    td.addEventListener('click', addLink);
                 }
                 column++;
             }
         }
         row++;
     }
-    alert('Now click on courses to add links.');
-}
+})();
 
 function addLink(e) {
-    var info = e.currentTarget.firstChild.innerHTML;
-    alert("You clicked " + info.substr(0, info.indexOf('<br>')));
+    e.preventDefault();
+    let td = e.currentTarget;
+    let info = td.firstChild.innerHTML;
+    let message = '[' + courses.indexOf(td) + '] ' + info.substr(0, info.indexOf('<br>')) + '\n';
+    message += 'Input the link:';
+    let link = prompt(message);
+    if (link === null) return;
+    if (validURL(link)) {
+        link = setHttp(link);
+        alert('Link added!');
+        td.firstChild.innerHTML += '<br>Link Added';
+        td.setAttribute('title', link);
+        links['no' + courses.indexOf(td)] = link;
+    }
+    else {
+        alert('Wrong format. Please check the link.');
+    }
+}
+
+function validURL(str) {
+    var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+      '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+      '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+      '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+      '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+      '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+    return !!pattern.test(str);
+}
+
+function setHttp(link) {
+    if (link.search('^http[s]?://') == -1) {
+        link = 'http://' + link;
+    }
+    return link;
+}
+
+function processHTML() {
+    let tbody = table.children[2];
+    let row = 0;
+    for (let tr of tbody.children) {
+        if (row % 2 == 0) {
+            // odd row (head not count)
+            // skip first row (table head)
+            if (row != 0) {
+                for (let td of tr.children) {
+                    // skip the first column (time)
+                    if (td.children.length > 0) {
+                        td.removeEventListener('click', addLink);
+                        let index = courses.indexOf(td);
+                        let link = links['no' + index];
+                        if (link != undefined)
+                            td.setAttribute('onclick',
+                                    'javascript: window.open("' + link + '"');
+                    }
+                }
+            }
+        }
+        else {
+            // even row
+            let column = 0;
+            for (let td of tr.children) {
+                // skip the first column (time)
+                if (column != 0 && td.children.length > 0) {
+                    td.removeEventListener('click', addLink);
+                        let index = courses.indexOf(td);
+                        let link = links['no' + index];
+                        if (link != undefined)
+                            td.setAttribute('onclick',
+                                        'javascript: window.open("' + link + '"');
+                }
+                column++;
+            }
+        }
+        row++;
+    }
+}
+
+function saveHTML() {
+    let content = table.outerHTML;
+    let blob = new Blob([content], {type: "text/html;charset=utf-8"});
+    let a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "Schedule.html";
+    a.hidden = true;
+    document.body.appendChild(a);
+    a.innerHTML = "White Scheduler download";
+    a.click();
 }
