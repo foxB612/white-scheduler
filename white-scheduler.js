@@ -1,9 +1,9 @@
 // ==UserScript==
-// @name         CUSIS Parser
-// @namespace    http://tampermonkey.net/
-// @version      0.1
-// @description  try to take over the world!
-// @author       You
+// @name         White Scheduler
+// @namespace    http://foxb612.com
+// @version      1.0
+// @description  A mysterious scheduler made by White Magic Association
+// @author       foxb612
 // @match        *://cusis.cuhk.edu.hk/*
 // @grant        none
 // ==/UserScript==
