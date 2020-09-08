@@ -102,7 +102,6 @@ function addLink(e) {
     if (link === null) return;
     if (validURL(link)) {
         link = setHttp(link);
-        alert('Link added!');
         td.firstChild.innerHTML += '<br>Link Added';
         td.setAttribute('title', link);
         links['no' + courses.indexOf(td)] = link;
@@ -155,7 +154,28 @@ function processHTML() {
 }
 
 function saveHTML() {
-    let content = table.outerHTML;
+    let style = `<style>
+    table, th, tr, td {
+        font-family: Arial,sans-serif;
+        font-size: 9pt;
+        font-weight: normal;
+        font-style: normal;
+        color: rgb(81,81,81);
+        background-color: rgb(255,255,255);
+        line-height: 120%;
+        border-bottom-width: 1px;
+        border-right-width: 1px;
+        border-bottom-color: rgb(230,230,230);
+        border-right-color: rgb(230,230,230);
+        border-bottom-style: solid;
+        border-right-style: solid;
+    }
+    table {
+        width: 800px;
+        margin: auto;
+    }
+</style>`;
+    let content = '<head>\n' + style + '\n</head>\n<body>\n' + table.outerHTML + '\n</body>';
     let blob = new Blob([content], {type: "text/html;charset=utf-8"});
     let a = document.createElement("a");
     a.href = URL.createObjectURL(blob);
@@ -196,7 +216,6 @@ function build() {
                     blockClick();
                 }
             }
-            else console.log(mutation.type);
         }
     };
 
