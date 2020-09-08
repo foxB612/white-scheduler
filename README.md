@@ -6,9 +6,11 @@ A script running in Tampermonkey, which can automatically produce a click-and-op
 
 #### Usage
 
-1. Create a new script in Tampermonkey, copy the content of [white-scheduler.js](https://github.com/foxB612/white-scheduler/blob/master/white-scheduler.js) into it and save;
-2. Log into CUSIS and go to `My Weekly Schedule`;
-3. Adjust options in CUSIS (toggle AM/PM, hide Saturday, etc.);
-4. Click course blocks to add links;
-5. Click `Build` to save the html file to your local disk.
+- Import from Greasy Fork: [White Scheduler](https://greasyfork.org/scripts/411027-white-scheduler)
+- Or create a copy manually:
+  1. Create a new script in Tampermonkey, replace the default code with [white-scheduler.js](https://github.com/foxB612/white-scheduler/blob/master/white-scheduler.js) and save;
+  2. Log into CUSIS and go to `My Weekly Schedule`;
+  3. Adjust options in CUSIS (toggle AM/PM, hide Sat&Sun, etc.);
+  4. Click course blocks to add links;
+  5. Click `Build` to save the html file to your local disk.
 
