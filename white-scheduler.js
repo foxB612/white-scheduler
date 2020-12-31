@@ -65,7 +65,7 @@ function help(e) {
     2. Hover over the block to see the added link;
     3. Click Build to save the html file.
     
-    Credit:
+Credit:
     Fox icon is made by Freepik from www.flaticon.com
     `;
     alert(helpText);
